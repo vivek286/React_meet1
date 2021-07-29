@@ -1,7 +1,7 @@
-// import '../styles/globals.css'
+import tottal from '../styles/globals.css'
 import Layout from '../components/layout/Layout'
 function MyApp({ Component, pageProps }) {
-  return <Layout><Component {...pageProps} /></Layout>
+  return <tottal><Layout><Component {...pageProps} /></Layout></tottal>
 }
 
 export default MyApp
