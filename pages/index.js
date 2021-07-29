@@ -1,65 +1,69 @@
-import Head from 'next/head'
-import styles from '../styles/Home.module.css'
-
-export default function Home() {
+import MeetupList from "../components/meetups/MeetupList";
+import { Fragment, useEffect , useState } from "react";
+import { MongoClient } from "mongodb";
+import Head from 'next/head';
+// const Dummy_Meetup=[
+//   {
+//     id:"m1",
+//     title:"First Meetup",
+//     image:"https://upload.wikimedia.org/wikipedia/commons/8/85/Conseil_d%27Etat_Paris_WA.jpg",
+//     address: "patanahi"
+//   },
+//   {
+//     id:"m2",
+//     title:"Second Meetup",
+//     image:"https://upload.wikimedia.org/wikipedia/commons/8/85/Conseil_d%27Etat_Paris_WA.jpg",
+//     address: "patanahi"
+//   }
+// ]
+function homepage(props){
   return (
-    <div className={styles.container}>
-      <Head>
-        <title>Create Next App</title>
-        <link rel="icon" href="/favicon.ico" />
-      </Head>
-
-      <main className={styles.main}>
-        <h1 className={styles.title}>
-          Welcome to <a href="https://nextjs.org">Next.js!</a>
-        </h1>
-
-        <p className={styles.description}>
-          Get started by editing{' '}
-          <code className={styles.code}>pages/index.js</code>
-        </p>
-
-        <div className={styles.grid}>
-          <a href="https://nextjs.org/docs" className={styles.card}>
-            <h3>Documentation &rarr;</h3>
-            <p>Find in-depth information about Next.js features and API.</p>
-          </a>
-
-          <a href="https://nextjs.org/learn" className={styles.card}>
-            <h3>Learn &rarr;</h3>
-            <p>Learn about Next.js in an interactive course with quizzes!</p>
-          </a>
-
-          <a
-            href="https://github.com/vercel/next.js/tree/master/examples"
-            className={styles.card}
-          >
-            <h3>Examples &rarr;</h3>
-            <p>Discover and deploy boilerplate example Next.js projects.</p>
-          </a>
-
-          <a
-            href="https://vercel.com/import?filter=next.js&utm_source=create-next-app&utm_medium=default-template&utm_campaign=create-next-app"
-            className={styles.card}
-          >
-            <h3>Deploy &rarr;</h3>
-            <p>
-              Instantly deploy your Next.js site to a public URL with Vercel.
-            </p>
-          </a>
-        </div>
-      </main>
-
-      <footer className={styles.footer}>
-        <a
-          href="https://vercel.com?utm_source=create-next-app&utm_medium=default-template&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Powered by{' '}
-          <img src="/vercel.svg" alt="Vercel Logo" className={styles.logo} />
-        </a>
-      </footer>
-    </div>
-  )
+  <Fragment>
+     <Head>
+      <title>
+         React Meetings
+      </title>
+      
+    </Head>
+    <MeetupList meetups={props.meetups}/>
+  </Fragment>
+  );
+  
 }
+export async function getStaticProps(){
+  const client=await MongoClient.connect('mongodb+srv://Admin:Vivek123@cluster0.tduui.mongodb.net/meetups?retryWrites=true&w=majority');
+  const db=client.db();
+  
+  
+  
+  const meetupsCollections=db.collection('meetups');
+  const meetUUps=await meetupsCollections.find().toArray();
+  // fetch('/api/meetups');
+  client.close();
+
+  return{
+    props:{
+      meetups: meetUUps.map(meetup=>({
+        title:meetup.title,
+        address:meetup.address,
+        image:meetup.image,
+        id:meetup._id.toString()
+
+      }))
+    },
+    revalidate: 10
+  };
+
+}
+// export async function getServerSideProps(context){
+
+//   const req=context.req;
+//   const res=context.res;
+
+//   return {
+//     props:{
+//       meetups:Dummy_Meetup
+//     } 
+//   };
+// }
+export default homepage;
